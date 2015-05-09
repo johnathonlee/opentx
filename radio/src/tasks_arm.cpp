@@ -60,12 +60,12 @@ OS_STK audioStack[AUDIO_STACK_SIZE]; // cannot be put in CCM, I don't know exact
 
 #if defined(BLUETOOTH)
 OS_TID btTaskId;
-OS_STK btStack[BT_STACK_SIZE]; _CCM
+OS_STK btStack[BT_STACK_SIZE] _CCM;
 #endif
 
 #if defined(DEBUG)
 OS_TID debugTaskId;
-OS_STK debugStack[DEBUG_STACK_SIZE]; _CCM
+OS_STK debugStack[DEBUG_STACK_SIZE] _CCM;
 #endif
 
 OS_MutexID audioMutex;
