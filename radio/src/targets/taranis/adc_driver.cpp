@@ -61,7 +61,7 @@
 // Sample time should exceed 1uS
 #define SAMPTIME    2   // sample time = 28 cycles
 
-uint16_t Analog_values[NUMBER_ANALOG];
+uint16_t Analog_values[NUMBER_ANALOG] _NO_CCM;
 
 #if defined(REV9E)
   const int8_t ana_direction[NUMBER_ANALOG] = {1,-1,1,-1,  -1,1,-1,  -1,1,  1,  -1,-1,1};

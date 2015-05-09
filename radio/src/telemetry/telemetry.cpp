@@ -1,6 +1,6 @@
 #include "../opentx.h"
 
-TelemetryItem telemetryItems[MAX_SENSORS];
+TelemetryItem telemetryItems[MAX_SENSORS] _CCM;
 
 void TelemetryItem::gpsReceived()
 {

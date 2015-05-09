@@ -1,7 +1,7 @@
 /*
 *****************************************************************************
 **
-**  File        : stm32_flashboot.ld
+**  File        : stm32f2_flash.ld
 **
 **  Abstract    : Linker script for STM32F205 Device with
 **                0.5MByte FLASH, 128KByte SRAM
@@ -26,8 +26,9 @@ _estack = 0x20020000;    /* end of 128K SRAM */
 _Min_Heap_Size = 0;      /* required amount of heap  */
 _Main_Stack_Size = 1024; /* required amount of stack for interrupt stack (Main stack) */
 
-/*Main stack end*/
+/* Main stack end */
 _main_stack_start = _estack - _Main_Stack_Size;
+_heap_end = _main_stack_start;
 
 /* Specify the memory areas */
 MEMORY
@@ -45,10 +46,18 @@ SECTIONS
   /* The program code and other data goes into FLASH */
   .text :
   {
-    . = ALIGN(4);
+    FILL(0xFFFF)
+      
+    CREATE_OBJECT_SYMBOLS
+
+    KEEP(*(.isr_boot_vector)) /* Startup code */
+    *(.bootrodata)
+    *(.bootrodata.*)
+      
+    . = 32768;           /* Set the start of the main program */
+    _stext = .;          /* Provide the name for the start of this section */
+	 . = ALIGN(4);
     KEEP(*(.isr_vector)) /* Startup code */
-    *(.version)
-    . = ALIGN(4);      /* Align the start of the text part */
     *(.text)           /* .text sections (code) */
     *(.text*)          /* .text* sections (code) */
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
@@ -62,36 +71,36 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
-  } >RAM
+  } >FLASH
 
 
-   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >RAM
+   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
     .ARM : {
     __exidx_start = .;
       *(.ARM.exidx*)
       __exidx_end = .;
-    } >RAM
+    } >FLASH
 
   .preinit_array     :
   {
     PROVIDE_HIDDEN (__preinit_array_start = .);
     KEEP (*(.preinit_array*))
     PROVIDE_HIDDEN (__preinit_array_end = .);
-  } >RAM
+  } >FLASH
   .init_array :
   {
     PROVIDE_HIDDEN (__init_array_start = .);
     KEEP (*(SORT(.init_array.*)))
     KEEP (*(.init_array*))
     PROVIDE_HIDDEN (__init_array_end = .);
-  } >RAM
+  } >FLASH
   .fini_array :
   {
     PROVIDE_HIDDEN (__fini_array_start = .);
     KEEP (*(.fini_array*))
     KEEP (*(SORT(.fini_array.*)))
     PROVIDE_HIDDEN (__fini_array_end = .);
-  } >RAM
+  } >FLASH
 
   /* used by the startup to initialize data */
   _sidata = .;

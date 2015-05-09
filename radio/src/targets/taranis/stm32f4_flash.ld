@@ -1,10 +1,10 @@
 /*
 *****************************************************************************
 **
-**  File        : stm32_flash.ld
+**  File        : stm32f4_flash.ld
 **
-**  Abstract    : Linker script for STM32F205 Device with
-**                0.5MByte FLASH, 128KByte SRAM
+**  Abstract    : Linker script for STM32F407 Device with
+**                0.5MByte FLASH, 128KByte SRAM, 64KByte CCM
 **
 **                Set heap size, stack size and stack location according
 **                to application requirements.
@@ -13,19 +13,6 @@
 **
 **  Target      : STMicroelectronics STM32
 **
-**  Environment : Atollic TrueSTUDIO(R)
-**
-**  Distribution: The file is distributed �as is,� without any warranty
-**                of any kind.
-**
-**  (c)Copyright Atollic AB.
-**  You may use this file as-is or modify it according to the needs of your
-**  project. Distribution of this file (unmodified or modified) is not
-**  permitted. Atollic AB permit registered Atollic TrueSTUDIO(R) users the
-**  rights to distribute the assembled, compiled & linked contents of this
-**  file as part of an application binary file, provided that it is built
-**  using the Atollic TrueSTUDIO(R) toolchain.
-**
 *****************************************************************************
 */
 
@@ -33,13 +20,14 @@
 ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
-_estack = 0x20020000;    /* end of 128K SRAM */
+_estack = 0x10010000;    /* end of 64K CCM */
+_heap_end = 0x20020000;  /* end of 128K SRAM */
 
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0;      /* required amount of heap  */
 _Main_Stack_Size = 1024; /* required amount of stack for interrupt stack (Main stack) */
 
-/*Main stack end*/
+/* Main stack end */
 _main_stack_start = _estack - _Main_Stack_Size;
 
 /* Specify the memory areas */
@@ -47,6 +35,7 @@ MEMORY
 {
   FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 512K
   RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 128K
+  CCM (xrw)       : ORIGIN = 0x10000000, LENGTH = 64K
   MEMORY_B1 (rx)  : ORIGIN = 0x60000000, LENGTH = 0K
 }
 
@@ -166,6 +155,18 @@ SECTIONS
     *(.mb1rodata)      /* read-only data (constants) */
     *(.mb1rodata*)
   } >MEMORY_B1
+  
+  /* collect all uninitialized .ccm sections */
+  .ccm (NOLOAD) :
+  {
+    . = ALIGN(4);
+    _sccm = .;
+    __ccm_start__ = _sccm;
+    *(.ccm)
+    . = ALIGN(4);
+    _eccm = .;
+    __ccm_end__ = _eccm;
+  } >CCM
 
   /* Remove information from the standard libraries */
   /DISCARD/ :

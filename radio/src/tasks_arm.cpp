@@ -50,22 +50,22 @@
 
 OS_TID menusTaskId;
 // stack must be aligned to 8 bytes otherwise printf for %f does not work!
-OS_STK _ALIGNED(8) menusStack[MENUS_STACK_SIZE];
+OS_STK _ALIGNED(8) menusStack[MENUS_STACK_SIZE]; // cannot be put in CCM, I don't know exactly why, perhaps the SD uses DMA with the stack, needs to be checked
 
 OS_TID mixerTaskId;
-OS_STK mixerStack[MIXER_STACK_SIZE];
+OS_STK mixerStack[MIXER_STACK_SIZE] _CCM;
 
 OS_TID audioTaskId;
-OS_STK audioStack[AUDIO_STACK_SIZE];
+OS_STK audioStack[AUDIO_STACK_SIZE]; // cannot be put in CCM, I don't know exactly why, perhaps the SD uses DMA with the stack, needs to be checked
 
 #if defined(BLUETOOTH)
 OS_TID btTaskId;
-OS_STK btStack[BT_STACK_SIZE];
+OS_STK btStack[BT_STACK_SIZE]; _CCM
 #endif
 
 #if defined(DEBUG)
 OS_TID debugTaskId;
-OS_STK debugStack[DEBUG_STACK_SIZE];
+OS_STK debugStack[DEBUG_STACK_SIZE]; _CCM
 #endif
 
 OS_MutexID audioMutex;

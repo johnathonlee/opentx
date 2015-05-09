@@ -48,15 +48,15 @@
   };
 #endif
 
-EEGeneral  g_eeGeneral;
-ModelData  g_model;
+EEGeneral  g_eeGeneral _CCM;
+ModelData  g_model _CCM;
 
 #if defined(SDCARD)
-Clipboard clipboard;
+Clipboard clipboard _CCM;
 #endif
 
 #if defined(PCBTARANIS) && defined(SDCARD)
-uint8_t modelBitmap[MODEL_BITMAP_SIZE];
+uint8_t modelBitmap[MODEL_BITMAP_SIZE] _CCM;
 void loadModelBitmap(char *name, uint8_t *bitmap)
 {
   uint8_t len = zlen(name, LEN_BITMAP_NAME);
@@ -97,10 +97,10 @@ uint8_t heartbeat;
 uint8_t stickMode;
 
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
-safetych_t safetyCh[NUM_CHNOUT];
+safetych_t safetyCh[NUM_CHNOUT] _CCM;
 #endif
 
-union ReusableBuffer reusableBuffer;
+union ReusableBuffer reusableBuffer _CCM;
 
 const pm_uint8_t bchout_ar[] PROGMEM = {
     0x1B, 0x1E, 0x27, 0x2D, 0x36, 0x39,
@@ -1453,7 +1453,7 @@ void flightReset()
 }
 
 #if defined(THRTRACE)
-uint8_t  s_traceBuf[MAXTRACE];
+uint8_t  s_traceBuf[MAXTRACE] _CCM;
 #if LCD_W >= 255
   int16_t  s_traceWr;
   int16_t  s_traceCnt;

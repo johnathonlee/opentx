@@ -212,6 +212,14 @@
   #define ROTARY_ENCODER_NAVIGATION
 #endif
 
+#if defined(STM32F4)
+  #define _CCM __attribute__((section(".ccm")))
+  #define _NO_CCM
+#else
+  #define _CCM
+  #define _NO_CCM
+#endif
+
 #if defined(SIMU) || defined(CPUARM) || GCC_VERSION < 472
   typedef int32_t int24_t;
 #else
@@ -696,7 +704,8 @@ extern uint8_t flightModeTransitionLast;
   extern int _end;
   extern int _estack;
   extern int _main_stack_start;
-  #define getAvailableMemory() ((unsigned int)((unsigned char *)&_main_stack_start - heap))
+  extern int _heap_end;
+  #define getAvailableMemory() ((unsigned int)((unsigned char *)&_heap_end - heap))
 #endif
 
 void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms);
