@@ -265,6 +265,12 @@ void release_spi (void)
 }
 
 #ifdef STM32_SD_USE_DMA
+
+#if defined(_CCM)
+WORD rw_workbyte[1];
+// TODO initialization to 0xffff would be better here, I need to find a way to initialize CCM first!
+#endif
+
 /*-----------------------------------------------------------------------*/
 /* Transmit/Receive Block using DMA (Platform dependent. STM32 here)     */
 /*-----------------------------------------------------------------------*/
@@ -278,7 +284,11 @@ void stm32_dma_transfer(
 )
 {
   DMA_InitTypeDef DMA_InitStructure;
+#if defined(_CCM)
+  rw_workbyte[0] = 0xffff;
+#else
   WORD rw_workbyte[] = { 0xffff };
+#endif
 
   DMA_DeInit(DMA_Channel_SPI_SD_RX);
   DMA_DeInit(DMA_Channel_SPI_SD_TX);
@@ -466,6 +476,10 @@ void power_off (void)
 /* Receive a data packet from MMC                                        */
 /*-----------------------------------------------------------------------*/
 
+#if defined(STM32_SD_USE_DMA) && defined(_CCM)
+  uint8_t sd_buff[512];
+#endif
+
 static
 BOOL rcvr_datablock (
         BYTE *buff,                     /* Data buffer to store received data */
@@ -485,7 +499,10 @@ BOOL rcvr_datablock (
     return FALSE; /* If not valid data token, return with error */
   }
 
-#ifdef STM32_SD_USE_DMA
+#if defined(STM32_SD_USE_DMA) && defined(_CCM)
+  stm32_dma_transfer( TRUE, sd_buff, btr );
+  memcpy(buff, sd_buff, btr);
+#elif defined(STM32_SD_USE_DMA)
   stm32_dma_transfer( TRUE, buff, btr );
 #else
   do {                                                    /* Receive the data block into buffer */
@@ -530,8 +547,11 @@ BOOL xmit_datablock (
   xmit_spi(token);                                        /* transmit data token */
   if (token != 0xFD) {    /* Is data token */
 
-#ifdef STM32_SD_USE_DMA
-    stm32_dma_transfer( FALSE, buff, 512 );
+#if defined(STM32_SD_USE_DMA) && defined(_CCM)
+  memcpy(sd_buff, buff, 512);
+  stm32_dma_transfer( FALSE, sd_buff, 512 );
+#elif defined(STM32_SD_USE_DMA)
+  stm32_dma_transfer( FALSE, buff, 512 );
 #else
     wc = 0;
     do {                                                    /* transmit the 512 byte data block to MMC */
