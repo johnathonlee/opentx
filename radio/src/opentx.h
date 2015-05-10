@@ -214,10 +214,10 @@
 
 #if defined(STM32F4)
   #define _CCM __attribute__((section(".ccm")))
-  #define _NO_CCM
+  #define _NOCCM
 #else
   #define _CCM
-  #define _NO_CCM
+  #define _NOCCM
 #endif
 
 #if defined(SIMU) || defined(CPUARM) || GCC_VERSION < 472

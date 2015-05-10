@@ -267,7 +267,7 @@ void release_spi (void)
 #ifdef STM32_SD_USE_DMA
 
 #if defined(_CCM)
-WORD rw_workbyte[1];
+WORD rw_workbyte[1] _NOCCM;
 // TODO initialization to 0xffff would be better here, I need to find a way to initialize CCM first!
 #endif
 
@@ -477,7 +477,7 @@ void power_off (void)
 /*-----------------------------------------------------------------------*/
 
 #if defined(STM32_SD_USE_DMA) && defined(_CCM)
-  uint8_t sd_buff[512];
+  uint8_t sd_buff[512] _NOCCM;
 #endif
 
 static
